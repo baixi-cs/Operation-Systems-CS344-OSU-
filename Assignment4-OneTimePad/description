@@ -1,0 +1,55 @@
+Your program will encrypt and decrypt plaintext into ciphertext, using a key, in exactly the same fashion as above, except it will 
+be using modulo 27 operations: your 27 characters are the 26 capital letters, and the space character ( ). All 27 characters will 
+be encrypted and decrypted as above.
+
+To do this, you will be creating five small programs in C. Two of these will function like "daemons" (but aren't actually daemons),
+and will be accessed using network sockets. Two will use the daemons to perform work, and the last is a standalone utility.
+
+Your programs must use the network calls we've discussed in class (send(), recv(), socket(), bind(), listen(), & accept()) to send 
+and receive sequences of bytes for the purposes of encryption and decryption by the appropriate daemons. The whole point is to use 
+the network, even though for testing purposes we're using the same machine: if you just open() the datafiles from the server 
+without using the network calls, you'll receive 0 points on the assignment.
+
+EXAMPLE OUTPUT:
+
+$ cat plaintext1
+THE RED GOOSE FLIES AT MIDNIGHT
+$ otp_enc_d 57171 &
+$ otp_dec_d 57172 &
+$ keygen 10
+EONHQCKQ I
+$ keygen 10 > mykey
+$ cat mykey
+VAONWOYVXP
+$ keygen 10 > myshortkey
+$ otp_enc plaintext1 myshortkey 57171 > ciphertext1 
+Error: key ‘myshortkey’ is too short
+$ echo $?
+1
+$ keygen 1024 > mykey
+$ otp_enc plaintext1 mykey 57171 > ciphertext1
+$ cat ciphertext1
+GU WIRGEWOMGRIFOENBYIWUG T WOFL
+$ keygen 1024 > mykey2
+$ otp_dec ciphertext1 mykey 57172 > plaintext1_a
+$ otp_dec ciphertext1 mykey2 57172 > plaintext1_b
+$ cat plaintext1_a
+THE RED GOOSE FLIES AT MIDNIGHT
+$ cat plaintext1_b
+WVIOWBTUEIOBC  FVTROIROUXA JBWE
+$ cmp plaintext1 plaintext1_a
+$ echo $?
+0
+$ cmp plaintext1 plaintext1_b
+plaintext1 plaintext1_b differ: byte 1, line 1
+$ echo $?
+1
+$ otp_enc plaintext5 mykey 57171
+otp_enc error: input contains bad characters
+$ echo $?
+1
+$ otp_enc plaintext3 mykey 57172
+Error: could not contact otp_enc_d on port 57172
+$ echo $?
+2
+$
