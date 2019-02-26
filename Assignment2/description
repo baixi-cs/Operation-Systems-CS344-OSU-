@@ -1,0 +1,2 @@
+Write a C program that generates 7 rooms, their connections, and room types, puts that info into files for each room, then a 
+Separate C program graps the most recent rooms files and you can traverse the rooms until you reach the End_Room
