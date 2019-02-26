@@ -1,0 +1,5 @@
+We have to create our own Shell in C that create child processes and handles file IO...so on an so forth. This was one of the cooles
+Assignments I've ever done and I'm really proud of my work. In hind-sight I could've done better, like throwing my PID reaping
+for loop at the end of the main loop, but s'all good. At the time I was just racing to get it done.
+
+Go through the p3testscript to see what all it can do :)
