@@ -1,0 +1,368 @@
+#!/bin/bash
+#AUTHOR: Joshua Michael Strozzi
+
+
+
+
+###############################DONE DONE DONE############################
+dims() {
+##################          CHECK PARAMETERS       ####################
+  #read file into temp text file with symbols
+  if [ "$#" -gt 1 ]; then
+      echo -e "Too many parameters arguments for dims function: "$#"" 1>&2
+      return 1
+  fi
+
+############# BEN PROVIDED #######################
+datafilepath="datafile$$"
+if [ "$#" = "0" ]
+then
+    cat > "$datafilepath"
+elif [ "$#" = "1" ]
+then
+################# except this portion #############
+  if [[ ! -r "$1" ]];then                    #put this here so dims doesn't delete the file used later by the grading script...which is dumb..
+    echo "not readable" 1>&2
+    return 1
+  fi
+##############################################
+    cat $1 > "$datafilepath"
+
+fi
+##################################################
+
+
+if [[ ! -r "$datafilepath" ]];then    #this code
+  echo "not readable" 1>&2            #is now
+  return 1                            #benign
+fi
+#############################   EXECUTE   #############################
+rows=0
+elems=0
+cols=0
+
+rows=$(wc -l < $datafilepath)           #word count with lines option gives rows
+elems=$(wc -w < $datafilepath)          #word
+
+cols=$(($elems / $rows))
+
+echo "$rows $cols"
+rm -f "$datafilepath"
+return 0
+}
+
+
+
+
+
+
+
+transpose (){
+  ##################          CHECK PARAMETERS       ####################
+    #read file into temp text file with symbols
+    if [ "$#" -gt 1 ]; then
+        echo -e "Too many parameters arguments for trans function: "$#"" 1>&2
+        return 1
+    fi
+
+  ############# BEN PROVIDED #######################
+    datafilepath="datafile$$"
+    if [ "$#" = "0" ]
+    then
+        cat > "$datafilepath"
+    elif [ "$#" = "1" ]
+    then
+      if [[ ! -r "$1" ]];then
+        echo "not readable" 1>&2
+        return 1
+      fi
+        cat $1 > "$datafilepath"
+
+    fi
+  ##################################################
+
+
+  #############################   EXECUTE   #############################
+  touch "temp"
+  touch "temp1"
+  touch "temp2"
+  iterator=0
+while read curr_line
+do
+                                 #echo newLine into temp
+
+if [ "$iterator" = "0" ];then                      #if its the first time transposing the line, only throw the line into temp, don't do anything else
+  echo -e "$curr_line" | tr '\t' '\n' > "temp"     #turn row into column and overwrite temp1 wit it
+else                                                #otherwise
+  echo -e "$curr_line" | tr '\t' '\n' > "temp1"     #throw the first column into temp1 to be pasted next to temp and put in temp 2
+  #Ben told me to use paste
+  paste "temp" "temp1" > "temp2"                    #put column from temp1 next to temp, and put that in temp1
+  cat "temp2" > "temp"                              #put the pasted columns from temp and the new line into temp
+fi
+
+
+iterator=$(($iterator+1))                           #iterator to know if this is the first pass through or not
+done < "$datafilepath"
+#  echo "" >> "temp"                                 #echo nothing into temp file to for EOF
+cat temp
+rm temp2                                            #remove files made for this
+rm temp1
+rm temp
+return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+mean (){
+  ##################          CHECK PARAMETERS       ####################
+    #read file into temp text file with symbols
+    if [ "$#" -gt 1 ]; then
+        echo -e "Too many parameters arguments for mean function: "$#"" 1>&2
+        return 1
+    fi
+
+  ############# BEN PROVIDED #######################
+    datafilepath="datafile$$"
+    if [ "$#" = "0" ]
+    then
+        cat > "$datafilepath"
+    elif [ "$#" = "1" ]
+    then
+        datafilepath=$1
+    fi
+  ##################################################
+
+
+  if [[ ! -r "$datafilepath" ]];then
+    echo "not readable" 1>&2
+    return 1
+  fi
+  #############################   EXECUTE   #############################
+
+
+                #@@@@@@@@@@@@   PROVIDED IN LECTURE   @@@@@@@@@@@@@#
+cols=$(cat $datafilepath | head -n 1 | wc -w)
+rows=$(cat $datafilepath | cut -f 1 | wc -w)
+
+                #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
+iterator=1
+sum=0
+iter2=1
+
+
+while [ $iterator -lt $(($cols+1)) ]                #for n number of columns
+do
+#  cat "$datafilepath" | cut -f $iterator > "temp"  #cut the column of #=interater put in temp
+
+if [ $iterator -lt 2 ];then                         #if it's the first column
+  cat "$datafilepath" | cut -f $iterator > "temp"
+  while read num                                    #while loop for calculating sum of only the first column
+  do
+  sum=$(($sum+$num))
+
+done < "temp"
+#  sum=$(($sum/$rows))
+  sum=$(( ($sum+($rows/2)*(($sum>0)*2-1))/$rows ))        #Calculate average    look up: https://piazza.com/class/jlcyadqbpv1of?cid=17    a=top number  b=bottom number
+  echo -e "$sum" > "temp"
+
+else
+  cat "$datafilepath" | cut -f $iterator > "temp1"
+
+  while read num                                          #while loop for calculating sum of current column
+  do
+  sum=$(($sum+$num))
+  done < "temp1"
+
+#  sum=$(($sum/$rows))                                   #Calculate average
+  sum=$(( ($sum+($rows/2)*(($sum>0)*2-1))/$rows ))        #Calculate average    look up: https://piazza.com/class/jlcyadqbpv1of?cid=17    a=top number  b=bottom number
+  echo -e "$sum" > "temp1"                              #put avg into temp 1
+  #Ben told me to use paste
+  paste "temp" "temp1" > "temp2"                         #paste first column avg and subsequent column avgs next to eachother into temp2
+  cat "temp2" > "temp"                                  #put avgs into temp
+
+fi
+  sum=0                           #reset sum for each column
+  iterator=$(($iterator+1))       #iterating through the columns
+done
+
+
+#clear up files and display result
+cat temp
+
+rm temp
+rm temp1
+rm temp2
+return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+############################### complete ################################
+add (){
+
+
+  #########################   CHECK PARAMETERS   ########################
+  if [ "$#" -ne 2 ]; then
+    echo -e "Incorrect parameters arguments for add function: "$#"" 1>&2
+    return 1
+  fi
+  ############# set up data #######################
+
+        matrix1=$1
+        matrix2=$2
+########### provided by Ben in lecture #############   for ease
+        cols1=$(cat $matrix1 | head -n 1 | wc -w)
+        rows1=$(cat $matrix1 | cut -f 1 | wc -w)
+
+        cols2=$(cat $matrix2 | head -n 1 | wc -w)
+        rows2=$(cat $matrix2 | cut -f 1 | wc -w)
+  ##################################################
+if [ $cols1 -ne  $cols2 ] || [ $rows1 -ne $rows2 ]; then
+  echo -e "mismatched parameters arguments for add function: "$#"" 1>&2
+  return 1
+fi
+
+
+
+  #############################   EXECUTE   #############################
+
+iterator=1              #for iterating throw rows
+sum=0
+while IFS= read -r curr_line1 && IFS= read -r curr_line2 <&3; do   #found on https://unix.stackexchange.com/questions/26601/how-to-read-from-two-input-files-using-while-loop   and supported by responses on slack
+  echo "$curr_line1" | tr '\t' '\n' > "temp1"                      #translate to columns for easier access
+  echo "$curr_line2" | tr '\t' '\n' > "temp2"                      #translate to columns for easier access
+
+
+  while read num1 <&3 && read num2 <&4                            #read in contents of both matrices at same time
+  do
+    sum=$(($num1+$num2))                                          #at contents of matrix1 and matrix2 at index
+    echo "$sum" >> "temp3"                                        #append into temp3 for save keeping
+    sum=0
+  done 3<"temp1" 4<"temp2"                                        #files I'm reading in from
+
+
+#  iterator=$(($iterator+1))
+done <$matrix1 3<$matrix2                                         #files I'm reading in from
+
+
+#while [ $iterator -lt $(($cols1+1)) ];do
+while read num;                                                   #loop for displaying result
+do
+  if [ $iterator -lt $(($cols1)) ]; then
+    echo "$num" | tr '\n' '\t'
+  else
+    echo "$num"
+    iterator=0
+  fi
+
+
+
+iterator=$(($iterator+1))
+done < "temp3"
+
+
+rm temp1
+rm temp2
+rm temp3
+
+}
+
+
+
+###############################DONE DONE DONE############################
+multiply (){
+  #########################   CHECK PARAMETERS   ########################
+  if [ "$#" -ne 2 ]; then
+  echo -e "Incorrect parameters arguments for mult function: "$#"" 1>&2
+      return 1
+  fi
+
+  ##################################################
+  ############# set up data #######################
+
+        matrix1=$1
+        matrix2=$2
+########### provided by Ben in lecture #############
+        cols1=$(cat $matrix1 | head -n 1 | wc -w)
+        rows1=$(cat $matrix1 | cut -f 1 | wc -w)
+
+        cols2=$(cat $matrix2 | head -n 1 | wc -w)
+        rows2=$(cat $matrix2 | cut -f 1 | wc -w)
+        size1=$(($cols1*$rows1))                            #old code useless now, but benign
+        size2=$(($cols2*$rows2))                            #old code useless now, but benign
+
+if [ $cols1 -ne $rows2 ];then
+#if [ $size1 -ne $size2 ];then
+    echo -e "mismatched parameters arguments for mult function: size mismatch" 1>&2
+    return 1
+fi
+
+  #############################   EXECUTE   #############################
+  iterator=1              #iterating through rows of matrix1
+  inner_it=1              #for iterating through cols of matrix2
+  product=0               #for calculating products and whatnot
+
+
+#######Loop for iterating through rows of matrix1
+while read curr_line1;do
+       echo "$curr_line1" | tr '\t' '\n' >"temp1"       #puts line in as column into temp1
+#       cat $matrix2 | cut -f $iterator > "temp2"
+
+######Loop for iterating through cols of matrix2
+  while [ $inner_it -lt $(($cols2+1)) ];do              #for however many columns in matrix 2
+    cat $matrix2 | cut -f $inner_it > "temp2"             #puts first column into temp to
+  ######Loop for multiplying and adding together contents of each row of matrix 1 by all columns of matrix2
+         while read num1 <&3 && read num2 <&4; do         #yanked from slack: https://gyazo.com/3da0960f79c2a8858c9da6309c23bf3a supplied by Nick P. the TA
+            product=$(( $product+($num1*$num2) ))         #multiplies each number from temp1 by each of 2 and adds them together
+         done 3<"temp1" 4<"temp2"
+ #######
+
+
+################## logic for putting tabs and new lines where they need to go#############
+         if [ $inner_it -lt $cols2 ];then
+           echo -e "$product" | tr '\n' '\t'
+         else
+           echo -e "$product"
+         fi
+########  End of ########## logic for putting tabs and new lines where they need to go#############
+
+
+  ######
+  product=0                                               #reset for reuse
+  inner_it=$(($inner_it+1))
+
+  done
+######
+
+product=0
+inner_it=1
+iterator=$(($iterator+1))
+done < "$matrix1"
+
+
+
+rm temp1
+rm temp2
+}
+
+
+
+
+
+$1 "${@:2}"  #This is my case statement, calls the function in my arguments....basically my main
