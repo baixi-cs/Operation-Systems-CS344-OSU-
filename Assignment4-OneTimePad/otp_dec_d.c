@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
         //check if meant for encryptor or decryptor ....turns out this is the job of the client
         if(mainBuff[0]=='e'){
         //  fprintf(stderr,"ERROR: otp_enc cannot use otp_dec_d\n");
-          fflush(stdout);
-					charsRead = send(establishedConnectionFD, "1", 1, 0);
+          	fflush(stdout);
+		charsRead = send(establishedConnectionFD, "1", 1, 0);
 
 					//exit(2);
         }
@@ -134,34 +134,34 @@ int main(int argc, char *argv[])
         char *keyptr, *msgptr, *codeptr;
         int i, currchar;
 
-				int c, k; 				//ints for cypher char and key char
+	int c, k; 				//ints for cypher char and key char
         for(i=0, keyptr=key, msgptr=msg, codeptr=code; i<strlen(msg); i++, msgptr++, codeptr++, keyptr++){
 
-					if(*msgptr ==' '){				//if space
-						c=26;										//make it a bracket
-					}
-					else{
-						c= *msgptr - 'A';				//else convert it to it's letter number
-					}
-					if(*keyptr == ' '){				//repeat
-			      k= 26;
-			    }
-			    else{
-			      k = *keyptr - 'A';
-			    }
+		if(*msgptr ==' '){				//if space
+			c=26;										//make it a bracket
+		}
+		else{
+			c= *msgptr - 'A';				//else convert it to it's letter number
+		}
+		if(*keyptr == ' '){				//repeat
+			k= 26;
+		}
+		else{
+			k = *keyptr - 'A';
+		}
 
-					currchar = c-k;			// = cypher - key
+		currchar = c-k;			// = cypher - key
 
-					if(currchar<0){			//if less that A
-						currchar+=27;			//add 27 to make it it's letter
-					}
+		if(currchar<0){			//if less that A
+			currchar+=27;			//add 27 to make it it's letter
+		}
 
-					if(currchar==26){	//if bracket
-						*codeptr=' ';		//make it a space
-					}
-					else{
-						*codeptr=currchar +'A';		//else make it it's letter
-					}
+		if(currchar==26){	//if bracket
+			*codeptr=' ';		//make it a space
+		}
+		else{
+			*codeptr=currchar +'A';		//else make it it's letter
+		}
 
         }
         code[strlen(msg)]='$';		//append the terminating character onto the end of it
