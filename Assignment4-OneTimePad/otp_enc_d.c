@@ -89,10 +89,10 @@ int main(int argc, char *argv[])
         while(buffer[strlen(buffer)-1]!='$'){
         	memset(buffer, '\0', 1000);
         	charsRead = recv(establishedConnectionFD, buffer, 1000, 0); // Read the client's message from the socket
-          totalread+=charsRead;
-          if (charsRead < 0) error("ERROR reading from socket");
-          //printf("SERVER: I received this from the client: \"%s\"\n", buffer);
-          strncat(mainBuff, buffer, 1000);                            //past all stuff in buffer into mainBuff[er]
+          	totalread+=charsRead;
+          	if (charsRead < 0) error("ERROR reading from socket");
+          	//printf("SERVER: I received this from the client: \"%s\"\n", buffer);
+          	strncat(mainBuff, buffer, 1000);                            //past all stuff in buffer into mainBuff[er]
         }
 				//printf("SERVER: chars read: %d\n", totalread);
 
