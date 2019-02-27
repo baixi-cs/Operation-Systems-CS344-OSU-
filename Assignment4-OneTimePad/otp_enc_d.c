@@ -14,7 +14,6 @@ DUE: NOV 11 - 11:59PM
 
 void error(const char *msg) { perror(msg); exit(1); } // Error function used for reporting issues
 
-void encodefunc();
 
 pid_t myPids[5] = {-5,-5,-5,-5,-5};                             //set all values of pid array to -5, if -5, then put new pid there
 int numPids = 0;                                    //curr number of pids....starts at 0
@@ -136,20 +135,17 @@ int main(int argc, char *argv[])
 
         for(i=0, keyptr=key, msgptr=msg, codeptr=code; i<strlen(msg); i++, msgptr++, codeptr++, keyptr++){
 
-        /*  currchar = ( (*msgptr - '\0') + (*keyptr-'\0') );       //message + key between 0-26
-          currchar = currchar %26;                            //message + key (mod 26) 27 for space
-          *codeptr = 'A'+currchar;*/
-					p = (*msgptr - 'A' ); //returns number between 0-26...if 26, then it's a bracket, make it a space next
-					k = (*keyptr - 'A' ); //same as p but for the key
-					if(p<0){								//if space
-			      p=26;									//make it a bracket symbol
-			    }
-			    if(k<0){								//if space
-			      k=26;
-			    }
+		p = (*msgptr - 'A' ); //returns number between 0-26...if 26, then it's a bracket, make it a space next
+		k = (*keyptr - 'A' ); //same as p but for the key
+		if(p<0){								//if space
+			p=26;									//make it a bracket symbol
+		}
+		if(k<0){								//if space
+			k=26;
+		}
 
-					currchar = (p+k)%27;     						//message + key % 27 (for space)
-					*codeptr = 'A'+currchar;						//set it to the char value 0-26 to their actual char value
+		currchar = (p+k)%27;     						//message + key % 27 (for space)
+		*codeptr = 'A'+currchar;						//set it to the char value 0-26 to their actual char value
 
         }
         code[strlen(msg)]='$';								//terminating character
@@ -198,9 +194,3 @@ int main(int argc, char *argv[])
 }
 
 
-
-
-void encodefunc(){
-
-
-}
